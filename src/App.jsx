@@ -1,22 +1,59 @@
-import React from 'react';
-import Button from "./components/Button.jsx";
-import Input from "./components/Input.jsx";
+import React, {use, useEffect, useState} from 'react';
+import Table from "./components/Table.jsx";
 
 const App = () => {
+    const [search, setSearch] = useState('');
+    const [userData, setUserData] = useState([]);
+    const [filteredUserData, setFilteredUserData] = useState(userData);
 
-    function handleOnClick(value) {
-        console.log(value)
-    }
+    const columns = [
+        {
+            header: 'Name',
+            key: 'name',
+        },
+        {
+            header: 'Username',
+            key: 'username',
+        },
+        {
+            header: 'Email',
+            key: 'email',
+        },
+        {
+            header: 'Phone',
+            key: 'phone',
+        },
+        {
+            header: 'Website',
+            key: 'website',
+        },
+    ]
 
-    function handleInputChange(event) {
-        console.log(event.target.value)
-    }
+    useEffect(()=> {
+        fetch('https://jsonplaceholder.typicode.com/users')
+            .then(response => response.json())
+            .then(json => {
+                setUserData(json)
+                setFilteredUserData(json)
+            })
+    }, [])
+
+    useEffect(() => {
+        if(search === ''){
+            setFilteredUserData(userData)
+        }
+
+        const filteredUsers = userData?.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
+        setFilteredUserData(filteredUsers)
+    }, [search]);
 
     return (
-        <>
-            <Button getClicked={handleOnClick} variant='outlined' label='click me' className='px-8'/> <br/>
-            <Input onChange={handleInputChange} type='checkbox' placeholder='Enter something' />
-        </>
+        <Table
+            columns={columns}
+            data={filteredUserData}
+            search={search}
+            setSearch={setSearch}
+        />
     );
 };
 
